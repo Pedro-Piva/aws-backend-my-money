@@ -1,20 +1,14 @@
 #!/bin/bash
-set -e
+echo "=== AfterInstall: Configurando dependências ==="
 
-echo "===+ FixPermissions: Corrigindo permissões recursivamente +==="
+# 1. Define o diretório onde o appspec.yml colocou os arquivos
+APP_DIR="/home/ubuntu/app"
 
-TEMP_DIR="/home/ubuntu/app"
+# 2. Entra na pasta
+cd "$APP_DIR" || { echo "❌ Diretório $APP_DIR não encontrado"; exit 1; }
 
-# Verificar se o diretório existe
-if [ ! -d "$TEMP_DIR" ]; then
-  echo "⚠️  Diretório $TEMP_DIR não encontrado, nada a corrigir"
-  exit 0
-fi
+# 3. Instala as dependências do projeto
+echo "Instalando pacotes npm..."
+npm install
 
-# Aplicar permissões recursivamente para appuser
-echo "Aplicando permissões recursivas em $TEMP_DIR..."
-chown -R appuser:appuser "$TEMP_DIR"
-chmod -R 755 "$TEMP_DIR"
-
-echo "✓ Permissões aplicadas: appuser:appuser com modo 755"
-echo "=== FixPermissions: Concluído ==="
+echo "=== AfterInstall: Concluído com sucesso ==="

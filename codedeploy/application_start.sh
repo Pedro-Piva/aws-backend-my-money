@@ -1,80 +1,28 @@
 #!/bin/bash
-set -eux
+echo "=== ApplicationStart: Iniciando servidor ==="
 
-echo "=== ApplicationStart: Iniciando aplicação ==="
+# 1. Entra na pasta correta (a nova que definimos)
+APP_DIR="/home/ubuntu/app"
+cd "$APP_DIR" || { echo "❌ Diretório não encontrado"; exit 1; }
 
-# Diretório da aplicação (definido pelo appspec.yml)
-APP_DIR="/opt/apps/backend/current"
-SECRET_NAME="${SECRET_NAME:-prod/myapp/postgres}"
-AWS_REGION="${AWS_REGION:-us-east-1}"
-
-echo "✓ Usando diretório: $APP_DIR"
-
-# Verificar PM2 disponível (script roda como appuser)
-pm2 --version || { echo "✗ PM2 não encontrado"; exit 1; }
-echo "✓ PM2 disponível"
-
-# Verificar se ecosystem.config.js existe
-if [ ! -f "$APP_DIR/ecosystem.config.js" ]; then
-  echo "✗ Arquivo ecosystem.config.js não encontrado"
-  exit 1
-fi
-echo "✓ Arquivo ecosystem.config.js encontrado"
-
-# Criar diretório de logs se não existir
-mkdir -p "$APP_DIR/logs"
-echo "✓ Diretório de logs criado"
-
-# Buscar JWT_SECRET do AWS Secrets Manager
-echo "Buscando JWT_SECRET do Secrets Manager..."
-if command -v aws >/dev/null 2>&1; then
-  JWT_SECRET=$(aws secretsmanager get-secret-value \
-    --secret-id "$SECRET_NAME" \
-    --region "$AWS_REGION" \
-    --query 'SecretString' \
-    --output text 2>/dev/null | jq -r '.jwt_secret // .JWT_SECRET // empty')
-
-  if [ -z "$JWT_SECRET" ]; then
-    echo "⚠️  JWT_SECRET não encontrado no secret $SECRET_NAME"
-    echo "⚠️  Tentando usar variável de ambiente JWT_SECRET se existir"
-    if [ -z "$JWT_SECRET" ]; then
-      echo "✗ JWT_SECRET não disponível. Configure no Secrets Manager ou como variável de ambiente"
-      exit 1
-    fi
-  else
-    export JWT_SECRET
-    echo "✓ JWT_SECRET carregado do Secrets Manager"
-  fi
-else
-  echo "⚠️  AWS CLI não disponível, usando JWT_SECRET de variável de ambiente"
-  if [ -z "$JWT_SECRET" ]; then
-    echo "✗ JWT_SECRET não disponível como variável de ambiente"
-    exit 1
-  fi
+# 2. Garante que as variáveis de ambiente existem (cria um .env básico se não houver)
+if [ ! -f .env ]; then
+    echo "Criando .env temporário..."
+    echo "PORT=3000" >> .env
+    echo "DB_NAME=mymoneydb" >> .env
+    echo "AWS_REGION=us-east-1" >> .env
+    echo "AWS_SECRET_NAME=prod/myapp/postgres" >> .env
 fi
 
-# Deletar processos PM2 antigos para garantir aplicação das novas configurações
-pm2 delete meu-backend 2>/dev/null || true
-echo "✓ Processos PM2 antigos removidos"
+# 3. Inicia a aplicação
+# Remove processo antigo se existir para não dar erro de "já existe"
+pm2 delete backend-ec2 2> /dev/null || true
 
-# Iniciar aplicação com PM2 usando ecosystem.config.js
-echo "Iniciando aplicação com ecosystem.config.js..."
-cd "$APP_DIR"
+# Inicia o processo apontando direto para o index.js
+echo "Iniciando aplicação com PM2..."
+pm2 start src/index.js --name backend-ec2
 
-# Verificar se JWT_SECRET foi carregado
-if [ -z "$JWT_SECRET" ]; then
-  echo "⚠️  AVISO: JWT_SECRET não foi carregado!"
-fi
-
-# PM2 herdará as variáveis de ambiente do shell (incluindo JWT_SECRET)
-pm2 start ecosystem.config.js --update-env
-
-# Salvar configuração do PM2
+# Salva a lista de processos para reiniciar se o servidor desligar
 pm2 save
-echo "✓ Aplicação iniciada e configuração salva"
 
-# Mostrar status
-pm2 list
-pm2 logs meu-backend --lines 20 --nostream
-
-echo "=== ApplicationStart: Concluído ==="
+echo "=== ApplicationStart: Servidor iniciado com sucesso ==="

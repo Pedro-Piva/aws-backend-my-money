@@ -18,7 +18,7 @@ hooks:
   ApplicationStop:
     - location: codedeploy/application_stop.sh
       timeout: 300
-      runas: appuser
+      runas: ubuntu
   BeforeInstall:
     - location: codedeploy/before_install.sh
       timeout: 300
@@ -29,12 +29,12 @@ hooks:
       runas: root
     - location: codedeploy/after_install.sh
       timeout: 600
-      runas: appuser
+      runas: ubuntu
   ApplicationStart:
     - location: codedeploy/application_start.sh
       timeout: 300
-      runas: appuser
+      runas: ubuntu
   ValidateService:
     - location: codedeploy/validate_service.sh
       timeout: 120
-      runas: appuser
+      runas: ubuntu

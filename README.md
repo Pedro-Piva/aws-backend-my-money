@@ -3,7 +3,7 @@ Simplify personal financial control through a complete web solution, enabling or
 
 ## 📋 Step-by-Step Guide - Running the My Money Backend Application
 
-### 🔧 Prerequisites
+## 🔧 Prerequisites
 - Node.js (version 18 or higher)
 - Docker and Docker Compose
 - Git

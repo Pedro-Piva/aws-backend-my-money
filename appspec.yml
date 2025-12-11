@@ -3,12 +3,12 @@ os: linux
 
 files:
   - source: /
-    destination: /tmp/codedeploy-app
+    destination: /home/ubuntu/app
 
 permissions:
-  - object: /tmp/codedeploy-app
-    owner: appuser
-    group: appuser
+  - object: /home/ubuntu/app
+    owner: ubuntu
+    group: ubuntu
     mode: 755
     type:
       - directory

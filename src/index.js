@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const awsSecrets = require('./utils/aws-secrets');
 
-// Initialize AWS secrets or local .env BEFORE importing routes
+// Initialize AWS secrets or local .env BEFORE importing route
 (async () => {
   try {
     console.log('🔧 Initializing application configuration...');

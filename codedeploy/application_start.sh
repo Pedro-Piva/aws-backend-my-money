@@ -5,7 +5,7 @@ echo "=== ApplicationStart: Iniciando aplicação ==="
 
 # Diretório da aplicação (definido pelo appspec.yml)
 APP_DIR="/opt/apps/backend/current"
-SECRET_NAME="${SECRET_NAME:-money2-backend-dev-secret-rds}"
+SECRET_NAME="${SECRET_NAME:-prod/myapp/postgres}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 
 echo "✓ Usando diretório: $APP_DIR"

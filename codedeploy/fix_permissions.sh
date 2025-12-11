@@ -3,7 +3,7 @@ set -e
 
 echo "===+ FixPermissions: Corrigindo permissões recursivamente +==="
 
-TEMP_DIR="/tmp/codedeploy-app"
+TEMP_DIR="/home/ubuntu/app"
 
 # Verificar se o diretório existe
 if [ ! -d "$TEMP_DIR" ]; then

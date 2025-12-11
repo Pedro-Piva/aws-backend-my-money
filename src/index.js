@@ -27,12 +27,8 @@ const awsSecrets = require('./utils/aws-secrets');
     const transactionRoutes = require('./routes/transaction.routes');
 
     const app = express();
-
-    app.use(cors({
-      origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : ['http://localhost:3001'],
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    }));
+    
+    app.use(cors());
 
     app.use(express.json());
 
